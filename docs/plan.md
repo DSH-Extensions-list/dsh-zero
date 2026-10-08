@@ -54,46 +54,46 @@ All following paths are relative to `dsh-zero/`.
 
 **Interfaces:** `encodeText(text: string): string`; `decodeText(encoded: string): string`; `selectCandidate({original, candidate, countTokens?, minimumReduction}): {selected: boolean, basis: 'exact'|'estimated', originalCount: number, retainedCount: number}`. Counts include the complete final candidate, including its recovery notice. `countTokens` is synchronous and returns a finite nonnegative integer or throws; errors reject the candidate.
 
-- [ ] Write round-trip tests asserting `decodeText(encodeText(input)) === input` for LF, CRLF, lone CR, Unicode, empty text, no final newline, codec-marker text, and repeated multi-line blocks. Assert decoder rejects malformed counts and bounded expansion violations.
-- [ ] Run `node --test tests/codec.test.js` and confirm it fails because codec exports do not exist.
-- [ ] Implement a versioned literal/repeat record format that preserves complete line terminators; cap decoder expansion and verify equality before policy selection. Encode only consecutive repetition in this release.
-- [ ] Write selector tests: exact count greater/equal returns false; exact smaller returns true; callback failure returns false; estimated mode requires at least 20% reduction including notice; no tokenizer in strict mode bypasses. Assert one model's tokenizer never prices another model's output.
-- [ ] Run selector tests to observe failure, then implement `selection.js`. Keep unknown tokenizer mappings unknown; do not map by guessed model-name substrings.
-- [ ] Run both test files and commit `feat: add reversible codec and candidate selection`.
+- [x] Write round-trip tests asserting `decodeText(encodeText(input)) === input` for LF, CRLF, lone CR, Unicode, empty text, no final newline, codec-marker text, and repeated multi-line blocks. Assert decoder rejects malformed counts and bounded expansion violations.
+- [x] Run `node --test tests/codec.test.js` and confirm it fails because codec exports do not exist.
+- [x] Implement a versioned literal/repeat record format that preserves complete line terminators; cap decoder expansion and verify equality before policy selection. Encode only consecutive repetition in this release.
+- [x] Write selector tests: exact count greater/equal returns false; exact smaller returns true; callback failure returns false; estimated mode requires at least 20% reduction including notice; no tokenizer in strict mode bypasses. Assert one model's tokenizer never prices another model's output.
+- [x] Run selector tests to observe failure, then implement `selection.js`. Keep unknown tokenizer mappings unknown; do not map by guessed model-name substrings.
+- [x] Run both test files and commit `feat: add reversible codec and candidate selection`.
 
 ### Task 2: Native result policy, storage and optional lean mode
 
 **Interfaces:** `createPolicy({saveOriginal, record, resolveCounter, config}) -> postExecuteListener`; `saveOriginal(exec, originalText) -> Promise<{id, retrievalHint}>`; `record(entry) -> void`. `resolveCounter(exec)` resolves the current provider/model on each execution. The policy calls `next()` first and respects its accept/block/value decision. `config` contains `mode: 'off'|'safe'|'lean'`, `counting: 'estimated'|'exact-only'`, `minimumReduction: 0.2`, and `minimumBytes: 4096`.
 
-- [ ] Write policy tests asserting original output on storage failure, aborted signal, absent owner, unsupported blocks, exact-only without tokenizer, accepted value replacement, and downstream block decisions. Assert unique diagnostics, current metadata and additional contexts survive compression.
-- [ ] Run `node --test tests/policy.test.js` and observe failure.
-- [ ] Implement text-block-only compression through `tools/post-execute`; bypass `read`, plugin recovery methods, nested code-mode calls, and content already carrying a spill locator or codec envelope. Keep mixed or structured content unchanged for this release. Store originals through `ctx.spillStore.saveText`, retaining each block boundary in the artifact representation.
-- [ ] Add Config and Cordis registrations in `host.ts`. Resolve missing optional storage/prompt services by bypassing their feature. Use `ctx.systemPrompt.section` for lean guidance; disposal removes the section and listeners. Off registers no policy or guidance.
-- [ ] Add tests for spill-policy order, disabling/re-enabling and listener disposal. Run policy tests and commit `feat: integrate native output policy and recovery storage`.
+- [x] Write policy tests asserting original output on storage failure, aborted signal, absent owner, unsupported blocks, exact-only without tokenizer, accepted value replacement, and downstream block decisions. Assert unique diagnostics, current metadata and additional contexts survive compression.
+- [x] Run `node --test tests/policy.test.js` and observe failure.
+- [x] Implement text-block-only compression through `tools/post-execute`; bypass `read`, plugin recovery methods, nested code-mode calls, and content already carrying a spill locator or codec envelope. Keep mixed or structured content unchanged for this release. Store originals through `ctx.spillStore.saveText`, retaining each block boundary in the artifact representation.
+- [x] Add Config and Cordis registrations in `host.ts`. Resolve missing optional storage/prompt services by bypassing their feature. Use `ctx.systemPrompt.section` for lean guidance; disposal removes the section and listeners. Off registers no policy or guidance.
+- [x] Add tests for spill-policy order, disabling/re-enabling and listener disposal. Run policy tests and commit `feat: integrate native output policy and recovery storage`.
 
 ### Task 3: Savings service, settings page and original-output viewer
 
 **Interfaces:** `ZeroService.snapshot() -> Snapshot`; `ZeroService.listArtifacts(sessionId, cursor?) -> ArtifactPage`; `ZeroService.readArtifact(id, offset, length) -> ArtifactChunk`. `Snapshot` separates bytes, estimated counts, exact counts, recovery bytes/counts and bypass reasons. Artifact IDs are opaque plugin-issued IDs; reads accept no filesystem path. Limit reads to 65536 UTF-8 bytes per request and artifact listings to 50 entries per page. `ArtifactChunk` includes content, next offset, EOF, total bytes and session ID. Counters initially cover this host activation and state that scope in the UI.
 
-- [ ] Write service tests for forged IDs, negative/oversized ranges, session ownership, Unicode chunk boundaries, concurrent records, and recovery overhead. Run them to observe failure.
-- [ ] Implement `service.ts` and `contracts.ts` using native Cordis service/Remote contribution registration. Read only registered saved artifacts through the native filesystem capability and verify ownership; do not expose arbitrary paths or add an unauthenticated HTTP server.
-- [ ] Write client tests asserting exact/estimated labels, host-activation scope, unavailable billing fields, full-output paging, loading/error states, stale settings revisions, and unmount cleanup.
-- [ ] Implement controller and React page in the native settings slot. Use Settings describe/mutate with namespace revisions for mode/counting controls. Render stored output as literal text. Show gross reduction and recovery overhead separately; net token reduction is unavailable when accounting bases differ.
-- [ ] Implement `scripts/build.mjs` and package host/client exports plus native Remote contributions. Use adjacent provider-hub client slot patterns and the source checkout's Typert plugin examples; inspect actual API signatures before writing registration code.
-- [ ] Run unit/UI checks and build. Commit `feat: add savings settings and full-output viewer`.
+- [x] Write service tests for forged IDs, negative/oversized ranges, session ownership, Unicode chunk boundaries, concurrent records, and recovery overhead. Run them to observe failure.
+- [x] Implement `service.ts` and `contracts.ts` using native Cordis service/Remote contribution registration. Read only registered saved artifacts through the native filesystem capability and verify ownership; do not expose arbitrary paths or add an unauthenticated HTTP server.
+- [x] Write client tests asserting exact/estimated labels, host-activation scope, unavailable billing fields, full-output paging, loading/error states, stale settings revisions, and unmount cleanup.
+- [x] Implement controller and React page in the native settings slot. Use Settings describe/mutate with namespace revisions for mode/counting controls. Render stored output as literal text. Show gross reduction and recovery overhead separately; net token reduction is unavailable when accounting bases differ.
+- [x] Implement `scripts/build.mjs` and package host/client exports plus native Remote contributions. Use adjacent provider-hub client slot patterns and the source checkout's Typert plugin examples; inspect actual API signatures before writing registration code.
+- [x] Run unit/UI checks and build. Commit `feat: add savings settings and full-output viewer`.
 
 ### Task 4: Real Harness composition, paired evidence and package
 
-**Interfaces:** `npm run test:composition` requires `DSH_SOURCE`; `npm run benchmark -- --manifest <file> --output <directory>` consumes a JSON manifest containing named tasks, fixture workspaces, provider/model routes, repetition count, explicit budget, and deterministic success checks. No paid request occurs without a supplied benchmark budget and configured routes.
+**Interfaces:** `npm run test:composition` requires `DSH_SOURCE`; `npm run benchmark -- <manifest.json> <report.json>` consumes a JSON manifest containing named tasks, fixture workspaces, provider/model routes, repetition count, explicit budget, and deterministic success checks. No paid request occurs without a supplied benchmark budget and configured routes.
 
-- [ ] Write isolated Loader composition tests with real tools, spill-local, Settings and authenticated gateway. Use a local mock inference server exposing two differently named provider/model routes. Capture actual model requests, recover originals, inspect preserved canonical code-mode values, and confirm off mode leaves requests unchanged.
-- [ ] Test policy ordering with spill-policy, missing storage, reactivation, cancellation, strict unknown tokenizer, retained diagnostics, and actual client Remote artifact reads. Ensure teardown removes temporary profiles and listeners.
-- [ ] Run `DSH_SOURCE=/home/sushi/Applications/deepseek-harness-source npm run test:composition`; require explicit PASS for every integration case. These fixture routes establish integration independence, not real-model quality.
-- [ ] Implement the manifest-driven paired benchmark runner for off/safe/lean modes. Persist success, route identity, repetitions, runtime, calls, retries, recovery reads, provider input/output/cache usage, and estimates as separate fields. Use isolated copied workspaces and identical checks across modes.
-- [ ] Exercise the runner against the local fixtures. If a configured live benchmark budget is available, run more than one real model family; otherwise report real-model task-quality evaluation as pending rather than claiming unchanged quality.
-- [ ] Add README installation, default estimated-mode labeling, exact-only fallback, full-output recovery, counter lifetime, optional lean behavior, and follow-on feature boundaries. Add MIT license and bundle patch.
-- [ ] Run `npm test`, `npm run build`, composition, `npm pack --dry-run`, and `npm pack`. Inspect archive exports, manifest and bundled dependencies. Commit `feat: package validated DSH Zero plugin`.
-- [ ] Review the complete patch against the approved spec; report verified behavior and pending live quality/activation separately. Do not publish or modify the active desktop profile as part of packaging.
+- [x] Write isolated Loader composition tests with real tools, spill-local, Settings and authenticated gateway. Use a local mock inference server exposing two differently named provider/model routes. Capture actual model requests, recover originals, inspect preserved canonical code-mode values, and confirm off mode leaves requests unchanged.
+- [x] Test policy ordering with spill-policy, missing storage, reactivation, cancellation, strict unknown tokenizer, retained diagnostics, and actual client Remote artifact reads. Ensure teardown removes temporary profiles and listeners.
+- [x] Run `DSH_SOURCE=/home/sushi/Applications/deepseek-harness-source npm run test:composition`; require explicit PASS for every integration case. These fixture routes establish integration independence, not real-model quality.
+- [x] Implement the manifest-driven paired benchmark runner for off/safe/lean modes. Persist success, route identity, repetitions, runtime, calls, retries, recovery reads, provider input/output/cache usage, and estimates as separate fields. Use isolated copied workspaces and identical checks across modes.
+- [x] Exercise the runner against the local fixtures. If a configured live benchmark budget is available, run more than one real model family; otherwise report real-model task-quality evaluation as pending rather than claiming unchanged quality.
+- [x] Add README installation, default estimated-mode labeling, exact-only fallback, full-output recovery, counter lifetime, optional lean behavior, and follow-on feature boundaries. Add MIT license and bundle patch.
+- [x] Run `npm test`, `npm run build`, composition, `npm pack --dry-run`, and `npm pack`. Inspect archive exports, manifest and bundled dependencies. Commit `feat: package validated DSH Zero plugin`.
+- [x] Review the complete patch against the approved spec; report verified behavior and pending live quality/activation separately. Do not publish or modify the active desktop profile as part of packaging.
 
 ## Coverage and execution boundary
 

@@ -8,7 +8,7 @@ export class ServiceState {
  }
  addArtifact({sessionId,locator,bytes,toolName}){
   const item={id:randomUUID(),sessionId,locator,bytes,toolName,createdAt:new Date().toISOString()};this.artifacts.set(item.id,item);
-  while(this.artifacts.size>this.maxArtifacts)this.artifacts.delete(this.artifacts.keys().next().value);
+  while(this.artifacts.size>this.maxArtifacts){this.artifacts.delete(this.artifacts.keys().next().value);if(this.stats.selected)this.incomparable=true;}
   return item;
  }
  record(entry){
@@ -16,11 +16,12 @@ export class ServiceState {
   this.stats.selected++;this.stats.originalBytes+=entry.originalBytes;this.stats.retainedBytes+=entry.retainedBytes;
   const b=this.stats[entry.basis];b.original+=entry.originalCount;b.retained+=entry.retainedCount;b.grossReduction=b.original-b.retained;b.netProjectionReduction=b.grossReduction-b.recovery;
  }
- recordRecovery({basis,count,bytes,source}){
+ recordRecovery({basis,count,bytes,source,comparable=true}){
   if(source==='viewer'){this.stats.viewerBytes+=bytes;return;}
+  if(!comparable)this.incomparable=true;
   this.stats.modelRecoveryBytes+=bytes;const b=this.stats[basis];b.recovery+=count;b.netProjectionReduction=b.grossReduction-b.recovery;
  }
- snapshot(){return structuredClone(this.stats);}
+ snapshot(){const view=structuredClone(this.stats);if(this.incomparable){view.exact.netProjectionReduction=null;view.estimated.netProjectionReduction=null;}return view;}
  listArtifacts(sessionId='',cursor=0){
   if(typeof sessionId!=='string'||!Number.isSafeInteger(cursor)||cursor<0)throw Error('Invalid artifact listing');
   const entries=[...this.artifacts.values()].filter(a=>!sessionId||a.sessionId===sessionId).reverse();

@@ -9,7 +9,7 @@ export class ZeroController {
  }
  async save(mode,counting){
   if(!this.section)await this.load();if(!['off','safe','lean'].includes(mode)||!['estimated','exact-only'].includes(counting))throw Error('Choose a supported mode.');
-  unwrap(await this.remote.settings.mutate(this.section.ns,this.section.revision,{kind:'patch',ops:[{op:'set',path:['mode'],value:mode},{op:'set',path:['counting'],value:counting}]}));
+  unwrap(await this.remote.settings.mutate(this.section.ns,[{op:'set',path:['mode'],value:mode},{op:'set',path:['counting'],value:counting}],this.section.revision));
   return this.load();
  }
  async list(cursor){return unwrap(await this.remote.dshZero.listArtifacts('',cursor));}

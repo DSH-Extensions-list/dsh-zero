@@ -1,0 +1,305 @@
+{
+  "schema": "dsh-zero-benchmark/1",
+  "createdAt": "2026-10-08T06:11:56.214Z",
+  "fixture": true,
+  "budget": {
+    "maxCalls": 3,
+    "maxOutputTokens": 1024,
+    "timeoutMs": 10000
+  },
+  "cases": [
+    {
+      "task": "diagnostic",
+      "mode": "off",
+      "provider": "fixture-a",
+      "model": "fixture-a",
+      "success": true,
+      "fileChecks": [],
+      "output": "ZERO_FIXTURE_PASSED",
+      "calls": 2,
+      "retries": 0,
+      "recoveryReads": 0,
+      "budgetExhausted": false,
+      "durationMs": 63,
+      "providerUsage": {
+        "inputTokens": 9274,
+        "outputTokens": 20,
+        "totalTokens": 9294
+      },
+      "usageSource": "fixture-reported",
+      "estimatedRequestTokens": 9682,
+      "projection": {
+        "scope": "host-activation",
+        "startedAt": "2026-10-08T06:11:56.084Z",
+        "selected": 0,
+        "originalBytes": 0,
+        "retainedBytes": 0,
+        "viewerBytes": 0,
+        "modelRecoveryBytes": 0,
+        "estimated": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "exact": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "bypass": {}
+      },
+      "fixture": true,
+      "requestLogMatchesDurableResult": true,
+      "repetition": 0
+    },
+    {
+      "task": "diagnostic",
+      "mode": "safe",
+      "provider": "fixture-a",
+      "model": "fixture-a",
+      "success": true,
+      "fileChecks": [],
+      "output": "ZERO_FIXTURE_PASSED",
+      "calls": 2,
+      "retries": 0,
+      "recoveryReads": 0,
+      "budgetExhausted": false,
+      "durationMs": 15,
+      "providerUsage": {
+        "inputTokens": 606,
+        "outputTokens": 20,
+        "totalTokens": 626
+      },
+      "usageSource": "fixture-reported",
+      "estimatedRequestTokens": 1014,
+      "projection": {
+        "scope": "host-activation",
+        "startedAt": "2026-10-08T06:11:56.146Z",
+        "selected": 1,
+        "originalBytes": 37038,
+        "retainedBytes": 360,
+        "viewerBytes": 0,
+        "modelRecoveryBytes": 0,
+        "estimated": {
+          "original": 7760,
+          "retained": 89,
+          "grossReduction": 7671,
+          "recovery": 0,
+          "netProjectionReduction": 7671
+        },
+        "exact": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "bypass": {}
+      },
+      "fixture": true,
+      "requestLogMatchesDurableResult": true,
+      "repetition": 0
+    },
+    {
+      "task": "diagnostic",
+      "mode": "lean",
+      "provider": "fixture-a",
+      "model": "fixture-a",
+      "success": true,
+      "fileChecks": [],
+      "output": "ZERO_FIXTURE_PASSED",
+      "calls": 2,
+      "retries": 0,
+      "recoveryReads": 0,
+      "budgetExhausted": false,
+      "durationMs": 14,
+      "providerUsage": {
+        "inputTokens": 874,
+        "outputTokens": 20,
+        "totalTokens": 894
+      },
+      "usageSource": "fixture-reported",
+      "estimatedRequestTokens": 1282,
+      "projection": {
+        "scope": "host-activation",
+        "startedAt": "2026-10-08T06:11:56.163Z",
+        "selected": 1,
+        "originalBytes": 37038,
+        "retainedBytes": 360,
+        "viewerBytes": 0,
+        "modelRecoveryBytes": 0,
+        "estimated": {
+          "original": 7760,
+          "retained": 89,
+          "grossReduction": 7671,
+          "recovery": 0,
+          "netProjectionReduction": 7671
+        },
+        "exact": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "bypass": {}
+      },
+      "fixture": true,
+      "requestLogMatchesDurableResult": true,
+      "repetition": 0
+    },
+    {
+      "task": "diagnostic",
+      "mode": "off",
+      "provider": "fixture-b",
+      "model": "fixture-b",
+      "success": true,
+      "fileChecks": [],
+      "output": "ZERO_FIXTURE_PASSED",
+      "calls": 2,
+      "retries": 0,
+      "recoveryReads": 0,
+      "budgetExhausted": false,
+      "durationMs": 9,
+      "providerUsage": {
+        "inputTokens": 9274,
+        "outputTokens": 20,
+        "totalTokens": 9294
+      },
+      "usageSource": "fixture-reported",
+      "estimatedRequestTokens": 9682,
+      "projection": {
+        "scope": "host-activation",
+        "startedAt": "2026-10-08T06:11:56.178Z",
+        "selected": 0,
+        "originalBytes": 0,
+        "retainedBytes": 0,
+        "viewerBytes": 0,
+        "modelRecoveryBytes": 0,
+        "estimated": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "exact": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "bypass": {}
+      },
+      "fixture": true,
+      "requestLogMatchesDurableResult": true,
+      "repetition": 0
+    },
+    {
+      "task": "diagnostic",
+      "mode": "safe",
+      "provider": "fixture-b",
+      "model": "fixture-b",
+      "success": true,
+      "fileChecks": [],
+      "output": "ZERO_FIXTURE_PASSED",
+      "calls": 2,
+      "retries": 0,
+      "recoveryReads": 0,
+      "budgetExhausted": false,
+      "durationMs": 12,
+      "providerUsage": {
+        "inputTokens": 606,
+        "outputTokens": 20,
+        "totalTokens": 626
+      },
+      "usageSource": "fixture-reported",
+      "estimatedRequestTokens": 1014,
+      "projection": {
+        "scope": "host-activation",
+        "startedAt": "2026-10-08T06:11:56.189Z",
+        "selected": 1,
+        "originalBytes": 37038,
+        "retainedBytes": 360,
+        "viewerBytes": 0,
+        "modelRecoveryBytes": 0,
+        "estimated": {
+          "original": 7760,
+          "retained": 89,
+          "grossReduction": 7671,
+          "recovery": 0,
+          "netProjectionReduction": 7671
+        },
+        "exact": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "bypass": {}
+      },
+      "fixture": true,
+      "requestLogMatchesDurableResult": true,
+      "repetition": 0
+    },
+    {
+      "task": "diagnostic",
+      "mode": "lean",
+      "provider": "fixture-b",
+      "model": "fixture-b",
+      "success": true,
+      "fileChecks": [],
+      "output": "ZERO_FIXTURE_PASSED",
+      "calls": 2,
+      "retries": 0,
+      "recoveryReads": 0,
+      "budgetExhausted": false,
+      "durationMs": 11,
+      "providerUsage": {
+        "inputTokens": 874,
+        "outputTokens": 20,
+        "totalTokens": 894
+      },
+      "usageSource": "fixture-reported",
+      "estimatedRequestTokens": 1282,
+      "projection": {
+        "scope": "host-activation",
+        "startedAt": "2026-10-08T06:11:56.203Z",
+        "selected": 1,
+        "originalBytes": 37038,
+        "retainedBytes": 360,
+        "viewerBytes": 0,
+        "modelRecoveryBytes": 0,
+        "estimated": {
+          "original": 7760,
+          "retained": 89,
+          "grossReduction": 7671,
+          "recovery": 0,
+          "netProjectionReduction": 7671
+        },
+        "exact": {
+          "original": 0,
+          "retained": 0,
+          "grossReduction": 0,
+          "recovery": 0,
+          "netProjectionReduction": 0
+        },
+        "bypass": {}
+      },
+      "fixture": true,
+      "requestLogMatchesDurableResult": true,
+      "repetition": 0
+    }
+  ],
+  "limitations": [
+    "Fixture usage is synthetic; live usage is provider-reported.",
+    "Projection counts are not billing, cache or repeated-context savings.",
+    "Success markers and file checks require task-specific review."
+  ]
+}

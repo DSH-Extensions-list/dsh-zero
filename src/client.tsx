@@ -8,7 +8,8 @@ export function apply(ctx){
  ctx.effect(()=>{const style=document.createElement('style');style.dataset.plugin='dsh-zero';style.textContent=css;document.head.append(style);return()=>style.remove();});
  ctx.effect(async function*(){
   yield await ctx.remote.$mount(TYPERT_REMOTE);
-  yield ctx.inject(['remote.dshZero'],scope=>scope.slots.inject('settings.section',()=>scope.slots.register({name:'settings.section',id:'dsh-zero',order:86,label:'DSH Zero',inject:()=>({controller:new ZeroController(scope.remote)})},ZeroPanel)));
+  const fiber=ctx.inject(['remote.dshZero'],scope=>{scope.slots.inject('settings.section',()=>scope.slots.register({name:'settings.section',id:'dsh-zero',order:86,label:'DSH Zero',inject:()=>({controller:new ZeroController(scope.remote)})},ZeroPanel));});
+  await fiber;yield()=>fiber.dispose();
  });
 }
 const number=n=>Number(n??0).toLocaleString();
@@ -23,7 +24,7 @@ export function ZeroPanel({controller}){
  return <article className="dz-root">
   <header><div><h2>DSH Zero</h2><p>Keep useful output. Spend less context on repetition.</p></div><button disabled={busy} onClick={()=>run(loadView)}>Refresh</button></header>
   {error&&<p className="dz-error" role="alert">{error}</p>}{notice&&<p className="dz-notice" role="status">{notice}</p>}
-  <section><h3>How it works</h3><form onSubmit={e=>{e.preventDefault();run(async()=>{const v=await controller.save(mode,counting);return()=>{setView(v);setNotice('Changes saved. Counters restart when the plugin reloads.');};});}}>
+  <section><h3>How it works</h3><form onSubmit={e=>{e.preventDefault();run(async()=>{const v=await controller.save(mode,counting);return()=>{setView(v);setNotice('Changes saved. New tool calls use this mode.');};});}}>
    <fieldset disabled={busy||!view||!view.writable}><div className="dz-controls">
     <label>Mode<select value={mode} onChange={e=>setMode(e.target.value)}><option value="off">Off</option><option value="safe">Safe</option><option value="lean">Lean</option></select></label>
     <label>Counting<select value={counting} onChange={e=>setCounting(e.target.value)}><option value="estimated">Estimated · any model</option><option value="exact-only">Exact only · known tokenizer</option></select></label>
@@ -35,10 +36,10 @@ export function ZeroPanel({controller}){
   <section><h3>Context saved</h3>{!view?<p role="status">Loading savings…</p>:<>
    <p className="dz-stats-caption">Since this plugin started: {number(view.stats.selected)} results compressed. {bytes(view.stats.originalBytes)} became {bytes(view.stats.retainedBytes)}.</p>
    <table className="dz-table"><thead><tr><th>Measurement</th><th>Gross reduction</th><th>Recovery overhead</th><th>Net projection reduction</th></tr></thead><tbody>
-    <tr><th>Estimated token reduction</th><td>{number(view.stats.estimated.grossReduction)}</td><td>{number(view.stats.estimated.recovery)}</td><td>{number(view.stats.estimated.netProjectionReduction)}</td></tr>
-    <tr><th>Exact token reduction</th><td>{number(view.stats.exact.grossReduction)}</td><td>{number(view.stats.exact.recovery)}</td><td>{number(view.stats.exact.netProjectionReduction)}</td></tr>
+    <tr><th>Estimated token reduction</th><td>{number(view.stats.estimated.grossReduction)}</td><td>{number(view.stats.estimated.recovery)}</td><td>{view.stats.estimated.netProjectionReduction===null?'Unavailable':number(view.stats.estimated.netProjectionReduction)}</td></tr>
+    <tr><th>Exact token reduction</th><td>{number(view.stats.exact.grossReduction)}</td><td>{number(view.stats.exact.recovery)}</td><td>{view.stats.exact.netProjectionReduction===null?'Unavailable':number(view.stats.exact.netProjectionReduction)}</td></tr>
    </tbody></table>
-   <p className="dz-help">These measure tool-output projections. Estimates use text length; they are not provider usage or billing savings. Cache cost and billed savings: unavailable. Viewer reads do not enter model context.</p>
+   <p className="dz-help">These measure tool-output projections. Estimates use text length; they are not provider usage or billing savings. Cache cost and billed savings: unavailable. Viewer reads do not enter model context. Net is unavailable after recovery with a different counting basis or tokenizer.</p>
    <details><summary>Why some results stay unchanged</summary><ul>{Object.entries(view.stats.bypass).map(([reason,count])=><li key={reason}>{reason.replaceAll('-',' ')}: {number(count)}</li>)}</ul></details>
   </>}</section>
   <section><h3>Saved originals</h3><p className="dz-help">Originals from this plugin activation. Models can recover them with their normal file tools.</p>

@@ -1,1 +1,77 @@
-{"name":"@arzvaak/dsh-zero","version":"0.1.0","type":"module","license":"MIT","engines":{"node":">=24"},"scripts":{"test":"node --test tests/*.test.js","build":"node scripts/build.mjs","test:composition":"node --expose-internals scripts/composition.mjs","benchmark":"node scripts/benchmark.mjs"},"devDependencies":{"@types/node":"^24.19.1","@types/react":"^18.3.31","@types/react-dom":"^18.3.7","esbuild":"^0.25.12","jsdom":"^26.1.0","react":"^18.3.1","react-dom":"^18.3.1","typescript":"^6.0.3"},"dependencies":{"zod":"^4.4.3"}}
+{
+  "name": "@arzvaak/dsh-zero",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "build": "node scripts/build.mjs",
+    "test:composition": "node --expose-internals scripts/composition.mjs",
+    "benchmark": "node --expose-internals scripts/benchmark.mjs",
+    "test:loop": "node --expose-internals scripts/loop-smoke.mjs",
+    "test:package": "node scripts/package-check.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.1",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "esbuild": "^0.25.12",
+    "jsdom": "^26.1.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "description": "Reversible tool-output compression, recovery and context measurements for DeepSeek Harness.",
+  "main": "lib/host.js",
+  "exports": {
+    ".": "./lib/host.js",
+    "./client": "./lib/client.js",
+    "./remote": "./lib/remote.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "src",
+    "scripts",
+    "tests",
+    "examples",
+    "docs",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "cordis.patch.yml"
+    },
+    "client": {
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings",
+        "@deepseek-ai/dsh-api-remotes"
+      ],
+      "platform": "web"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "~4.0.4",
+    "@deepseek-ai/schemastery": "~3.18.4",
+    "@deepseek-ai/dsh-typert-protocol": "0.2.0-rc.2"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    },
+    "@deepseek-ai/schemastery": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-typert-protocol": {
+      "optional": true
+    }
+  }
+}

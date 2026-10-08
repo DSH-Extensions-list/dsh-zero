@@ -15,7 +15,7 @@ export const Config=z.object({
  minimumBytes:z.number().step(1).min(1).default(4096),
  maximumBytes:z.number().step(1).min(4096).max(64*1024*1024).default(16*1024*1024),
  maxArtifacts:z.number().step(1).min(1).max(10000).default(1000),
-});
+}).volatile();
 
 /** Stream only the requested byte window through the composed native filesystem. */
 async function readRange(ctx,identities,locator,offset,length,signal){
@@ -23,24 +23,18 @@ async function readRange(ctx,identities,locator,offset,length,signal){
  const identity=identities.get(locator);if(!identity)throw Error('Unknown saved artifact');
  const target=await fs.resolve(locator,{signal});const info=await fs.stat(target,signal);
  if(target.targetKey!==identity.key||info?.version!==identity.version||info?.type!=='file')throw Error('Saved artifact changed or expired');
- const stream=await fs.streamText(target,signal);const parts=[];let position=0,remaining=length;
- for await(const text of stream){
-  const bytes=Buffer.from(text),start=Math.max(0,offset-position);
-  if(start<bytes.length&&remaining>0){const part=bytes.subarray(start,Math.min(bytes.length,start+remaining));parts.push(part);remaining-=part.length;}
-  position+=bytes.length;if(!remaining)break;
- }
+ const bytes=await fs.readByteRange(target,{offset,length},signal);
  const after=await fs.stat(target,signal);if(after?.version!==identity.version)throw Error('Saved artifact changed while reading');
- return Buffer.concat(parts);
+ return bytes;
 }
 
 export function apply(ctx,config){
- const cfg=config??DEFAULT_CONFIG;if(cfg.minimumBytes>cfg.maximumBytes)throw Error('minimumBytes exceeds maximumBytes');
+ const resolved=()=>config?.get?.()??config??DEFAULT_CONFIG;let cfg=resolved();if(cfg.minimumBytes>cfg.maximumBytes)throw Error('minimumBytes exceeds maximumBytes');
  const identities=new Map(),pending=new WeakMap(),counters=createCounters();
  const state=new ServiceState({maxArtifacts:cfg.maxArtifacts,readRange:(...args)=>readRange(ctx,identities,...args)});
  new ZeroService(ctx,state);
  ctx.provide('dshZeroCounters',counters);
  ctx.inject(['typert'],scope=>scope.effect(()=>scope.typert.register(TYPERT),'DSH Zero Remote descriptors'));
- if(cfg.mode==='off')return;
  const resolveCounter=exec=>{
   const header=exec.agent?.session.requestHeader?.()?.config;
   return counters.resolve(header?.provider??exec.agent?.options.provider,header?.model??exec.agent?.options.model);
@@ -58,14 +52,22 @@ export function apply(ctx,config){
   return {id:artifact.id,locator,retrievalHint:ref.retrievalHint};
  };
  const record=entry=>{if(entry.selected)pending.set(entry.exec.token,entry);else state.record(entry);};
- ctx.on('tools/post-execute',createPolicy({config:cfg,saveOriginal,record,resolveCounter}),{prepend:true});
+ let removePolicy=()=>{};
+ const refresh=()=>{
+  const nextConfig=resolved();if(nextConfig.minimumBytes>nextConfig.maximumBytes)throw Error('minimumBytes exceeds maximumBytes');cfg=nextConfig;
+  removePolicy();removePolicy=()=>{};state.maxArtifacts=cfg.maxArtifacts;
+  if(cfg.mode==='off')return;
+  removePolicy=ctx.on('tools/post-execute',createPolicy({config:cfg,saveOriginal,record,resolveCounter}),{prepend:true});
+ };
+ refresh();ctx.on('loader/volatile-update',refresh);ctx.effect(()=>()=>removePolicy());
+ ctx.inject(['systemPrompt'],scope=>{scope.systemPrompt.section({name:'dsh-zero:lean',order:scope.systemPrompt.getSectionOrder('DELIVERABLE_FILE_REFERENCES')+2,text:()=>cfg.mode==='lean'?LEAN_GUIDE:'',interpolate:false});});
  ctx.on('tools/result',(exec,result)=>{
-  const entry=pending.get(exec.token);if(entry){pending.delete(exec.token);if(result.content.length===1&&result.content[0].type==='text'&&result.content[0].text===entry.candidate)state.record(entry);else state.record({selected:false,reason:'superseded-projection'});}
+  const entry=pending.get(exec.token);if(entry){pending.delete(exec.token);if(result.content.length===1&&result.content[0].type==='text'&&result.content[0].text===entry.candidate){state.record(entry);const a=state.artifacts.get(entry.artifactId),identity=a&&identities.get(a.locator);if(identity){identity.basis=entry.basis;identity.counter=resolveCounter(exec);}}else state.record({selected:false,reason:'superseded-projection'});}
   if(exec.name!=='read'||result.isError)return;
-  const artifact=state.findByLocator(exec.args?.file_path);if(!artifact)return;
+  const artifact=state.findByLocator(exec.arguments?.file_path);if(!artifact)return;
   const text=result.content.filter(b=>b.type==='text').map(b=>b.text).join('');const counter=resolveCounter(exec);
   let basis='estimated',count=estimateText(text);if(counter){try{const value=counter(text);if(Number.isSafeInteger(value)&&value>=0){basis='exact';count=value;}}catch{/* Counter failure is labeled estimated, never exact. */}}
-  state.recordRecovery({basis,count,bytes:Buffer.byteLength(text),source:'model'});
+  const identity=identities.get(artifact.locator);const comparable=identity?.basis===basis&&(basis==='estimated'||identity.counter===counter);
+  state.recordRecovery({basis,count,bytes:Buffer.byteLength(text),source:'model',comparable});
  });
- if(cfg.mode==='lean')ctx.inject(['systemPrompt'],scope=>scope.systemPrompt.section({name:'dsh-zero:lean',order:scope.systemPrompt.getSectionOrder('DELIVERABLE_FILE_REFERENCES')+2,text:LEAN_GUIDE,interpolate:false}));
 }

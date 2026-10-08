@@ -11,7 +11,7 @@ function fixture(){
 }
 test('controller identifies namespace by Config and saves with original revision',async()=>{
  const f=fixture(),controller=new ZeroController(f.remote);const view=await controller.load();assert.equal(view.config.mode,'safe');assert.equal(view.stats.scope,'host-activation');
- await controller.save('lean','exact-only');assert.equal(f.calls[0][0],'zero-test');assert.equal(f.calls[0][1],3);
+ await controller.save('lean','exact-only');assert.equal(f.calls[0][0],'zero-test');assert.deepEqual(f.calls[0][1],[{op:'set',path:['mode'],value:'lean'},{op:'set',path:['counting'],value:'exact-only'}]);assert.equal(f.calls[0][2],3);
 });
 test('wire errors and stale revisions reach the user',async()=>{
  const f=fixture(),controller=new ZeroController(f.remote);await controller.load();f.remote.settings.mutate=async()=>({ok:false,error:{message:'Settings changed; reload first'}});

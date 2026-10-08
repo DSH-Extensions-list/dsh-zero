@@ -25,3 +25,8 @@ test('bounded registry evicts metadata and preserves counters',()=>{
 test('viewer recovery is tracked separately from model-context overhead',async()=>{
  const {state,artifact}=fixture();await state.readArtifact('s',artifact.id,0,64);const view=state.snapshot();assert.ok(view.viewerBytes>0);assert.equal(view.estimated.recovery,0);
 });
+test('net projection reduction is unavailable when recovery uses a different basis',()=>{
+ const {state}=fixture();state.record({selected:true,basis:'exact',originalBytes:1000,retainedBytes:100,originalCount:250,retainedCount:25});
+ state.recordRecovery({basis:'estimated',count:30,bytes:120,source:'model',comparable:false});
+ assert.equal(state.snapshot().exact.netProjectionReduction,null);assert.equal(state.snapshot().estimated.netProjectionReduction,null);
+});

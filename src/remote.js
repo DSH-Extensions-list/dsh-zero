@@ -1,6 +1,6 @@
 import {z} from 'zod';
 export const PACKAGE='@arzvaak/dsh-zero';
-const count=z.number().int().nonnegative(),bucket=z.object({original:count,retained:count,grossReduction:z.number(),recovery:count,netProjectionReduction:z.number()});
+const count=z.number().int().nonnegative(),bucket=z.object({original:count,retained:count,grossReduction:z.number(),recovery:count,netProjectionReduction:z.number().nullable()});
 export const snapshotSchema=z.object({scope:z.literal('host-activation'),startedAt:z.string(),selected:count,originalBytes:count,retainedBytes:count,viewerBytes:count,modelRecoveryBytes:count,estimated:bucket,exact:bucket,bypass:z.record(z.string(),count)});
 const artifact=z.object({id:z.string(),sessionId:z.string(),bytes:count,toolName:z.string(),createdAt:z.string()});
 const page=z.object({items:z.array(artifact),nextCursor:count.nullable()});

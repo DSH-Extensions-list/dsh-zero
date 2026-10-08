@@ -1,7 +1,7 @@
 # DSH Zero design
 
 Date: 2026-10-08
-Status: Proposed design for review; implementation has not started.
+Status: Approved and implemented; live model quality evaluation remains pending.
 
 ## Purpose
 
