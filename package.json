@@ -1,0 +1,1 @@
+{"name":"@arzvaak/dsh-zero","version":"0.1.0","type":"module","license":"MIT","engines":{"node":">=24"},"scripts":{"test":"node --test tests/*.test.js","build":"node scripts/build.mjs","test:composition":"node --expose-internals scripts/composition.mjs","benchmark":"node scripts/benchmark.mjs"}}
