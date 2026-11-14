@@ -6,12 +6,12 @@ import {JSDOM} from 'jsdom';
 import {Context} from '@deepseek-ai/cordis';
 import * as Registry from '@deepseek-ai/dsh-typert-registry';
 
-export async function checkClient(host,harness,artifact){
+export async function checkClient(host,harness,artifact,ownerPeer){
  const dom=new JSDOM('<!doctype html><html><head></head><body></body></html>'),ctx=new Context();let client;
  const require=createRequire(import.meta.url),priorDocument=globalThis.document;globalThis.document=dom.window.document;
  try{
   await ctx.plugin(Registry.default);
-  ctx.provide('connection',{rpc:{call:async(_prefix,endpoint,payload,signal)=>{try{const [namespace,method]=endpoint.split('/');return{ok:true,value:await host.typertGateway.invoke({namespace,method,args:payload.args,signal})};}catch(error){return{ok:false,error:{message:error.message}};}},open:()=>{throw Error('Unexpected stream');}},registerGenerationSource:()=>()=>{},start:()=>({stop(){}})});
+  ctx.provide('connection',{rpc:{call:async(_prefix,endpoint,payload,signal)=>{try{const [namespace,method]=endpoint.split('/');return{ok:true,value:await host.typertGateway.invoke({namespace,method,args:payload.args,signal,peer:ownerPeer})};}catch(error){return{ok:false,error:{message:error.message}};}},open:()=>{throw Error('Unexpected stream');}},registerGenerationSource:()=>()=>{},start:()=>({stop(){}})});
   const Gateway=await harness.importFile('packages/api/gateway/lib/types/client/index.js');await ctx.plugin(Gateway);
   // Settings service is outside this plugin; its real host path is tested in composition.
   ctx.provide('remote.settings',{});

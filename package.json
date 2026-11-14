@@ -1,10 +1,11 @@
 {
   "name": "@arzvaak/dsh-zero",
-  "version": "0.1.0",
+  "version": "0.1.0-english.20261023.rc3.20261114.1",
   "type": "module",
   "license": "MIT",
   "engines": {
-    "node": ">=24"
+    "node": ">=24",
+    "dsh": "0.2.0-rc.2 || 0.2.1-rc.2 || 0.2.2-alpha.3 || 0.2.2-rc.3"
   },
   "scripts": {
     "test": "node --test tests/*.test.js",
@@ -61,7 +62,7 @@
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.4",
     "@deepseek-ai/schemastery": "~3.18.4",
-    "@deepseek-ai/dsh-typert-protocol": "0.2.0-rc.2"
+    "@deepseek-ai/dsh-typert-protocol": "0.2.0-rc.2 || 0.2.1-rc.2"
   },
   "peerDependenciesMeta": {
     "@deepseek-ai/cordis": {

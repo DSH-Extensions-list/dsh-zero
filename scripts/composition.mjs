@@ -8,13 +8,14 @@ import {decodeText} from '../src/codec.js';
 import {ZeroController} from '../src/controller.js';
 const harness=connectHarness(process.env.DSH_SOURCE);
 const {Context}=await import('@deepseek-ai/cordis');
+const {Peer}=await import('@deepseek-ai/dsh-client-connection');
 const {default:Loader}=await import('@deepseek-ai/cordis-plugin-loader');
 const {initProfile,mountRootInclude,readProfilePatches}=await import('@deepseek-ai/dsh-app-boot');
 const {default:ConfigEditor}=await import('@deepseek-ai/dsh-config-editor');
 const {default:Settings}=await import('@deepseek-ai/dsh-settings');
 const {defineTool}=await import('@deepseek-ai/dsh-tools');
 const {default:yaml}=await harness.importFile('node_modules/js-yaml/index.js');
-const temp=await mkdtemp(join(tmpdir(),'dsh-zero-')),ctx=new Context();
+const temp=await mkdtemp(join(tmpdir(),'dsh-zero-')),ctx=new Context(),ownerPeer=new Peer(ctx.root,{principal:{kind:'owner'}});
 const original='warning: 반복🙂\r\ninfo: repeat\r\n'.repeat(1000)+'ERROR: unique diagnostic';
 const config={mode:'safe',counting:'estimated',minimumBytes:4096,maximumBytes:16*1024*1024,minimumReduction:0.2,maxArtifacts:1000};
 const ok=async fn=>{try{return{ok:true,value:await fn()};}catch(error){return{ok:false,error:{message:error.message}};}};
@@ -28,12 +29,14 @@ try{
   {id:'fs',name:'@deepseek-ai/dsh-fs-local',config:{cwd:temp}},
   {id:'spill',name:'@deepseek-ai/dsh-spill-local',config:{root:join(temp,'spill'),cleanupPeriodDays:0}},
   {id:'typert',name:'@deepseek-ai/dsh-typert-registry'},
+  {id:'remote-access',name:'@deepseek-ai/dsh-api-remote-access'},
   {id:'gateway',name:'@deepseek-ai/dsh-api-gateway'},
   {id:'zero',name:resolve(process.env.DSH_ZERO_PACKAGE_ROOT??'.','lib/host.js'),config},
  ];
  await writeFile(join(bundle,'cordis.patch.yml'),yaml.dump([{insert:rows}]));await writeFile(join(dir,'cordis.yml'),'[]\n');
  const profile={name:'test',startedBundles:['zero-test'],dir,patchPath:join(dir,'cordis.patch.yml'),installAnchor:join(temp,'package.json'),cwd:temp,home:temp,overlays:[]};
  ctx.baseUrl=pathToFileURL(temp+'/').href;await ctx.plugin(Loader);ctx.provide('profileContext',profile);await ctx.plugin(ConfigEditor);await ctx.plugin(Settings);
+ ctx.provide('workingDirectory',{ensure:async agent=>agent.session.header.cwd});
  await mountRootInclude(ctx,join(dir,'cordis.yml'),readProfilePatches('test',profile));await ctx.loader.await();
  assert.ok(ctx.get('dshZero'));assert.ok(ctx.get('tools'));assert.ok(ctx.get('spillStore'));
  ctx.tools.register(defineTool({name:'fixture_output',description:'Emit fixture output',parameters:{},output:{schema:{type:'string'},render:(_,value)=>[{type:'text',text:value}]},execute:async()=>original}));
@@ -46,7 +49,7 @@ try{
  const artifacts=ctx.dshZero.listArtifacts('zero-session',0);assert.equal(artifacts.items.length,1);const artifact=artifacts.items[0];let recovered='',offset=0;
  for(;;){const chunk=await ctx.dshZero.readArtifact('zero-session',artifact.id,offset,65536,new AbortController().signal);recovered+=chunk.text;offset=chunk.nextOffset;if(chunk.eof)break;}
  assert.equal(recovered,original);console.log('PASS real Loader/tools/spill: compressed projection, canonical value, Unicode recovery');
- const invoke=(method,args)=>ctx.typertGateway.invoke({namespace:'dshZero',method,args});
+ const invoke=(method,args)=>ctx.typertGateway.invoke({namespace:'dshZero',method,args,peer:ownerPeer});
  assert.equal((await invoke('snapshot',{})).selected,1);
  assert.equal((await invoke('readArtifact',{sessionId:'zero-session',id:artifact.id,offset:0,length:64})).sessionId,'zero-session');
  await assert.rejects(()=>invoke('readArtifact',{sessionId:'zero-session',id:'/etc/passwd',offset:0,length:64}));
@@ -69,6 +72,6 @@ try{
  console.log('PASS native spill-policy composition, storage failure fallback, changed-artifact refusal');
  // Use a fresh unchanged artifact for the native client read check.
  await call();const clientArtifact=ctx.dshZero.listArtifacts('zero-session',0).items[0];
- const {checkClient}=await import('./client-check.mjs');await checkClient(ctx,harness,clientArtifact);
+ const {checkClient}=await import('./client-check.mjs');await checkClient(ctx,harness,clientArtifact,ownerPeer);
  console.log('DSH_ZERO_COMPOSITION_OK');
 }finally{await ctx.fiber.dispose();await rm(temp,{recursive:true,force:true});}
