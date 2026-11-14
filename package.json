@@ -26,7 +26,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "zod": "^4.4.3"
+    "zod": "^4.6.6"
   },
   "description": "Reversible tool-output compression, recovery and context measurements for DeepSeek Harness.",
   "main": "lib/host.js",
